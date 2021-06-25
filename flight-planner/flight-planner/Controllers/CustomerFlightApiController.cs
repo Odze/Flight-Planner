@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
-using System.Web.UI;
+using flight_planner.DbContext;
 using flight_planner.Models;
 
 namespace flight_planner.Controllers
 {
     public class CustomerFlightApiController : ApiController
     {
+        private static readonly Object obj = new Object();
+
         [Route("api/airports"), HttpGet]
         public IHttpActionResult searchAirports(string search)
         {
@@ -28,29 +28,40 @@ namespace flight_planner.Controllers
         [Route("api/flights/search")]
         public IHttpActionResult searchFlights(SearchFlightsRequest searchFlightsRequest)
         {
-            if (IsFReqNull(searchFlightsRequest))
+            lock (obj)
             {
-                return BadRequest();
+                if (IsFReqNull(searchFlightsRequest))
+                {
+                    return BadRequest();
+                }
+
+                FlightStorage.FindFlightWithReq(searchFlightsRequest);
+                var findedFlights = FlightStorage.FindedFlightsByReq;
+
+                var pageResult = new PageResult(findedFlights);
+                return Ok(pageResult);
             }
-
-            FlightStorage.FindFlightWithReq(searchFlightsRequest);
-            var findedFlights = FlightStorage.FindedFlightsByReq;
-
-            var pageResult = new PageResult(findedFlights);
-            return Ok(pageResult);
         }
 
         [Route("api/flights/{id}"),HttpGetAttribute]
         public IHttpActionResult findFlightById(int id)
         {
-            var flight = FlightStorage.FindFlight(id);
-
-            if (flight == null)
+            lock (obj)
             {
-                return NotFound();
-            }
+                Flight flight;
 
-            return Ok(flight);
+                using (var ctx = new FlightPlannerDbContext())
+                {
+                    flight = ctx.Flights.Include(f => f.from).Include(f => f.to).SingleOrDefault(f => f.id == id);
+                }
+
+                if (flight == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(flight);
+            }
         }
 
         private bool IsFReqNull(SearchFlightsRequest searchReq)

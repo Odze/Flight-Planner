@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
-using System.Net;
-using System.Runtime.CompilerServices;
-using System.Web;
-using System.Web.Http;
-using WebGrease.Css;
+using flight_planner.DbContext;
 
 namespace flight_planner.Models
 {
@@ -17,21 +13,13 @@ namespace flight_planner.Models
         private static int _id;
         public static List<Flight> FindedFlightsByReq = new List<Flight>();
 
-        public static Flight AddFlight(Flight newflight)
-        {
-            newflight.id = _id;
-            _id++;
-            allFlights.Add(newflight);
-            return newflight;
-        }
-
-        public static Flight FindFlight (int id)
-        {
-            return allFlights.FirstOrDefault(x => x.id == id);
-        }
-
         public static HashSet<Airport> FindAirportWithName (string findFlight)
         {
+            using (var ctx = new FlightPlannerDbContext())
+            {
+                allFlights = ctx.Flights.Include(f => f.from).Include(f => f.to).ToList();
+            }
+
             findedAirports.Clear();
             addedAirports.Clear();
             findFlight = findFlight.Trim().ToLower();
@@ -51,6 +39,7 @@ namespace flight_planner.Models
                 }
             }
 
+            allFlights.Clear();
             return findedAirports;
         }
 
@@ -61,7 +50,7 @@ namespace flight_planner.Models
 
             while (counter < charsInFlight)
             {
-                if (flight.from.country.Trim().ToLower()[counter] != findFlight[counter])
+                if (flight.from.Country.Trim().ToLower()[counter] != findFlight[counter])
                 {
                     break;
                 }
@@ -78,7 +67,7 @@ namespace flight_planner.Models
 
             while (counter < charsInFlight)
             {
-                if (flight.from.city.Trim().ToLower()[counter] != findFlight[counter])
+                if (flight.from.City.Trim().ToLower()[counter] != findFlight[counter])
                 {
                     break;
                 }
@@ -118,7 +107,7 @@ namespace flight_planner.Models
 
             while (counter < charsInFlight)
             {
-                if (flight.to.country.Trim().ToLower()[counter] != findFlight[counter])
+                if (flight.to.Country.Trim().ToLower()[counter] != findFlight[counter])
                 {
                     break;
                 }
@@ -135,7 +124,7 @@ namespace flight_planner.Models
 
             while (counter < charsInFlight)
             {
-                if (flight.to.city.Trim().ToLower()[counter] != findFlight[counter])
+                if (flight.to.City.Trim().ToLower()[counter] != findFlight[counter])
                 {
                     break;
                 }
@@ -170,13 +159,18 @@ namespace flight_planner.Models
 
         public static List<Flight> FindFlightWithReq (SearchFlightsRequest flightsRequest)
         {
+            using (var ctx = new FlightPlannerDbContext())
+            {
+                allFlights = ctx.Flights.Include(f => f.from).Include(f => f.to).ToList();
+            }
+
             string flightDate;
             string flightsReqDate;
             flightsReqDate = flightsRequest.DepartureDate;
             FindedFlightsByReq.Clear();
             string from = flightsRequest.From.Trim().ToLower();
             string to = flightsRequest.To.Trim().ToLower();
-
+            
             foreach (var flight in allFlights)
             {
                 flightDate = flight.departureTime.Trim();
@@ -192,6 +186,7 @@ namespace flight_planner.Models
                 }
             }
 
+            allFlights.Clear();
             return FindedFlightsByReq;
         }
 

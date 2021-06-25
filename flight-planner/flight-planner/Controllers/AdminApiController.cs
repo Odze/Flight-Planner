@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
 using System.Web.Http;
 using flight_planner.Attributes;
+using flight_planner.DbContext;
 using flight_planner.Models;
 
 namespace flight_planner.Controllers
@@ -21,7 +20,13 @@ namespace flight_planner.Controllers
         {
             lock (obj)
             {
-                var flight = FlightStorage.FindFlight(id);
+                Flight flight;
+
+                using (var ctx = new FlightPlannerDbContext())
+                {
+                    flight = ctx.Flights.Include(f => f.from).Include(f => f.to).SingleOrDefault(f => f.id == id);
+                }
+
                 if (flight == null)
                 {
                     return NotFound();
@@ -36,11 +41,15 @@ namespace flight_planner.Controllers
         {
             lock (obj)
             {
-                var flight = FlightStorage.FindFlight(id);
-
-                if (flight != null)
+                using (var ctx = new FlightPlannerDbContext())
                 {
-                    FlightStorage.allFlights.Remove(flight);
+                    Flight flight = ctx.Flights.Include(f => f.from).Include(f => f.to).SingleOrDefault(f => f.id == id);
+                    if (flight != null)
+                    {
+                        ctx.Flights.Remove(flight);
+                    }
+
+                    ctx.SaveChanges();
                 }
 
                 return Ok();
@@ -68,7 +77,12 @@ namespace flight_planner.Controllers
                 output.from = newFlight.From;
                 output.to = newFlight.To;
                 output.carrier = newFlight.Carrier;
-                FlightStorage.AddFlight(output);
+
+                using (var ctx = new FlightPlannerDbContext())
+                {
+                    ctx.Flights.Add(output);
+                    ctx.SaveChanges();
+                }
 
                 return Created("", output);
             }
@@ -82,11 +96,11 @@ namespace flight_planner.Controllers
                 string.IsNullOrEmpty(newFlight.DepartureTime) ||
                 string.IsNullOrEmpty(newFlight.ArrivalTime) ||
                 string.IsNullOrEmpty(newFlight.To?.airport) ||
-                string.IsNullOrEmpty(newFlight.To?.city) ||
-                string.IsNullOrEmpty(newFlight.To?.country) ||
+                string.IsNullOrEmpty(newFlight.To?.City) ||
+                string.IsNullOrEmpty(newFlight.To?.Country) ||
                 string.IsNullOrEmpty(newFlight.From?.airport) ||
-                string.IsNullOrEmpty(newFlight.From?.city) ||
-                string.IsNullOrEmpty(newFlight.From?.country)
+                string.IsNullOrEmpty(newFlight.From?.City) ||
+                string.IsNullOrEmpty(newFlight.From?.Country)
                 )
             {
                 return true;
@@ -96,17 +110,29 @@ namespace flight_planner.Controllers
 
         private bool IsSameFlights (AddFlightRequest newflight)
         {
-            foreach (var flight in FlightStorage.allFlights)
+            List<Flight> FlightList = new List<Flight>();
+
+            using (var ctx = new FlightPlannerDbContext())
+            {
+                FlightList = ctx.Flights.Include(f => f.from).Include(f => f.to).ToList();
+            }
+
+            if (FlightList.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var flight in FlightList)
             {
                 if (
                     newflight.DepartureTime == flight.departureTime &&
                     newflight.ArrivalTime == flight.arrivalTime &&
-                    newflight.To.airport == flight.to.airport &&
-                    newflight.To.city == flight.to.city &&
-                    newflight.To.country == flight.to.country &&
-                    newflight.From.airport == flight.from.airport &&
-                    newflight.From.city == flight.from.city &&
-                    newflight.From.country == flight.from.country
+                    newflight.To.airport.ToLower() == flight.to.airport.ToLower() &&
+                    newflight.To.City.ToLower() == flight.to.City.ToLower() &&
+                    newflight.To.Country.ToLower() == flight.to.Country.ToLower() &&
+                    newflight.From.airport.ToLower() == flight.from.airport.ToLower() &&
+                    newflight.From.City.ToLower() == flight.from.City.ToLower() &&
+                    newflight.From.Country.ToLower() == flight.from.Country.ToLower()
                     )
                 {
                     return true;
