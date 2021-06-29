@@ -168,23 +168,12 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TestingApiController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
-    <Compile Include="DbContext\FlightPlannerDbContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202106171817150_Init.cs" />
-    <Compile Include="Migrations\202106171817150_Init.designer.cs">
-      <DependentUpon>202106171817150_Init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202106191650246_Init1.cs" />
-    <Compile Include="Migrations\202106191650246_Init1.designer.cs">
-      <DependentUpon>202106191650246_Init1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AddFlightRequest.cs" />
     <Compile Include="Models\Airport.cs" />
     <Compile Include="Models\Flight.cs" />
-    <Compile Include="Models\FlightStorage.cs" />
     <Compile Include="Models\PageResult.cs" />
     <Compile Include="Models\SearchFlightsRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -273,12 +262,18 @@
     <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202106171817150_Init.resx">
-      <DependentUpon>202106171817150_Init.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202106191650246_Init1.resx">
-      <DependentUpon>202106191650246_Init1.cs</DependentUpon>
-    </EmbeddedResource>
+    <ProjectReference Include="..\flight-planner.Core\flight-planner.Core.csproj">
+      <Project>{cc800b8e-d683-4f99-a57d-d33b8a5c4184}</Project>
+      <Name>flight-planner.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\flight-planner.Data\flight-planner.Data.csproj">
+      <Project>{3940ae68-7161-4f0e-8433-87a2070409e6}</Project>
+      <Name>flight-planner.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\flight-planner.Services\flight-planner.Services.csproj">
+      <Project>{13647fb4-15d5-4812-a0b6-7002c32fd850}</Project>
+      <Name>flight-planner.Services</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -2,13 +2,13 @@
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Http;
-using flight_planner.DbContext;
 using flight_planner.Models;
 
 namespace flight_planner.Controllers
 {
     public class CustomerFlightApiController : ApiController
     {
+        /*
         private static readonly Object obj = new Object();
 
         [Route("api/airports"), HttpGet]
@@ -85,5 +85,6 @@ namespace flight_planner.Controllers
 
             return false;
         }
+        */
     }
 }

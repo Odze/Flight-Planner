@@ -1,11 +1,11 @@
-﻿namespace flight_planner.Migrations
+﻿namespace flight_planner.Data.Migrations
 {
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<flight_planner.DbContext.FlightPlannerDbContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<flight_planner.Data.flight_plannerDBContext>
     {
         public Configuration()
         {
@@ -13,7 +13,7 @@
             AutomaticMigrationDataLossAllowed = false;
         }
 
-        protected override void Seed(flight_planner.DbContext.FlightPlannerDbContext context)
+        protected override void Seed(flight_planner.Data.flight_plannerDBContext context)
         {
             //  This method will be called after migrating to the latest version.
 

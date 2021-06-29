@@ -1,10 +1,10 @@
 ﻿using System.Web.Http;
-using flight_planner.DbContext;
 
 namespace flight_planner.Controllers
 {
     public class TestingApiController : ApiController
     {
+        /*
         [Route ("testing-api/clear"),HttpPost]
         public  IHttpActionResult Clear ()
         {
@@ -18,5 +18,6 @@ namespace flight_planner.Controllers
 
             return Ok ();
         }
+        */
     }
 }
