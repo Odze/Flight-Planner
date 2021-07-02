@@ -5,11 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using flight_planner.Core.Models;
 using flight_planner.Core.Services;
+using flight_planner.Data;
 
 namespace flight_planner.Services
 {
     public class EntityService <T> : DbService, IEntityService<T> where T : Entity
-    {
+    { 
+        public EntityService(flight_plannerDBContext context) : base(context)
+        {
+
+        }
+
         public IQueryable<T> Query()
         {
             return Query<T>();
